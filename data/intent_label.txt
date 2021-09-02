@@ -1,0 +1,9 @@
+0	general
+1	book_restaurant
+2	find_attraction
+3	find_restaurant
+4	find_hotel
+5	find_train
+6	book_train
+7	find_taxi
+8	book_hotel

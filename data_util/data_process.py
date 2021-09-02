@@ -93,8 +93,8 @@ def read_corpus(path, max_length, intent2idx, slot2idx, vocab, is_train=True):
             query_list = []
             token_list, slot_list,slot_out= [], [],[]
     data_loader = toTensor(token_lists,char_lists, slot_lists,intent_lists, mask_lists,is_train=is_train)
-    print("超过最大长度的样本数量为：",over_length)
-    print(max_len_word)
+    # print("max sentence length:", over_length)
+    # print("max word length:", max_len_word)
     return data_loader
 
 

@@ -37,7 +37,7 @@ class Joint_model(nn.Module):
         x_len = torch.sum(x != 0, dim=-1)
         x_emb = self.emb_drop(self.embed(x))
 
-        H, (_, _) = self.biLSTM(x_emb, x_len)
+        H, (_, _) = self.biLSTM(x_emb, x_len.cpu())
         H_I, H_S = self.I_S_Emb(H, H, mask)
         H_I, H_S = self.T_block1(H_I + H, H_S + H, mask)
         H_I_1, H_S_1 = self.I_S_Emb(H_I, H_S, mask)

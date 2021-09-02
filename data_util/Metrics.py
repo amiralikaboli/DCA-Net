@@ -6,7 +6,7 @@ class IntentMetrics(object):
         self.accuracy = sk_metrics.accuracy_score(intent_true, intent_pred)
         self.precision = sk_metrics.precision_score(intent_true, intent_pred, average="macro")
         self.recall = sk_metrics.recall_score(intent_true, intent_pred, average="macro")
-        self.classification_report = sk_metrics.classification_report(intent_true, intent_pred)
+        self.classification_report = sk_metrics.classification_report(intent_true, intent_pred, digits=4)
 
 
 class SlotMetrics(object):

@@ -36,7 +36,7 @@ def dev(model, dev_loader, idx2slot):
     true_intents = []
     pred_slots = []
     true_slots = []
-    for i, batch in enumerate(tqdm(dev_loader, desc="Evaluating")):
+    for i, batch in enumerate(tqdm(dev_loader, position=0, leave=True)):
         inputs, char_lists, slot_labels, intent_labels, masks, = batch
         if use_cuda:
             inputs, char_lists, masks, intent_labels, slot_labels = \
@@ -68,6 +68,7 @@ def dev(model, dev_loader, idx2slot):
     data_nums = len(dev_loader.dataset)
     ave_loss_intent = eval_loss_intent * config.batch_size / data_nums
     ave_loss_slot = eval_loss_slot * config.batch_size / data_nums
+    print(Metrics_intent.classification_report)
 
     sent_acc = semantic_acc(pred_slots, true_slots, pred_intents, true_intents)
     print('\nEvaluation - intent_loss: {:.6f} slot_loss: {:.6f} acc: {:.4f}% '
@@ -80,12 +81,11 @@ def dev(model, dev_loader, idx2slot):
 
 def run_train(train_data_file, dev_data_file):
 
-    print("1. load config and dict")
+    # print("1. load config and dict")
     vocab_file = open(config.data_path + "vocab.txt", "r", encoding="utf-8")
     vocab_list = [word.strip() for word in vocab_file]
     if not os.path.exists(config.data_path + "emb_word.txt"):
-        emb_file = "D:/emb/glove.6B/glove.6B.300d.txt"
-        embeddings = read_emb(emb_file, vocab_list)
+        embeddings = read_emb(config.emb_file, vocab_list)
         emb_write = open(config.data_path + "/emb_word.txt", "w", encoding="utf-8")
         for emb in embeddings:
             emb_write.write(emb)
@@ -100,8 +100,8 @@ def run_train(train_data_file, dev_data_file):
     n_slot_tag = len(idx2slot.items())
     n_intent_class = len(idx2intent.items())
 
-    train_dir = os.path.join(config.data_path, train_data_file)
-    dev_dir = os.path.join(config.data_path, dev_data_file)
+    train_dir = os.path.join(config.dataset_path, train_data_file)
+    dev_dir = os.path.join(config.dataset_path, dev_data_file)
     train_loader = read_corpus(train_dir, max_length=config.max_len, intent2idx=intent2idx, slot2idx=slot2idx,
                                vocab=vocab, is_train=True)
     dev_loader = read_corpus(dev_dir, max_length=config.max_len, intent2idx=intent2idx, slot2idx=slot2idx,
@@ -120,7 +120,7 @@ def run_train(train_data_file, dev_data_file):
     for epoch in trange(config.epoch, desc="Epoch"):
         print(scheduler.get_lr())
         step = 0
-        for i, batch in enumerate(tqdm(train_loader, desc="batch_nums")):
+        for i, batch in enumerate(tqdm(train_loader, position=0, leave=True)):
             step += 1
             model.zero_grad()
             inputs, char_lists, slot_labels, intent_labels, masks, = batch
@@ -137,9 +137,9 @@ def run_train(train_data_file, dev_data_file):
             loss.backward()
             optimizer.step()
 
-            if step % 100 == 0:
-                print("loss domain:", loss.item())
-                print('epoch: {}|    step: {} |    loss: {}'.format(epoch, step, loss.item()))
+            # if step % 100 == 0:
+            #     print("loss domain:", loss.item())
+            #     print('epoch: {}|    step: {} |    loss: {}'.format(epoch, step, loss.item()))
 
         intent_acc, slot_f1, sent_acc = dev(model, dev_loader, idx2slot)
 
@@ -167,7 +167,7 @@ def run_test(test_data_file):
     embeddings = [emb.strip() for emb in embedding_file]
     embedding_word, vocab = process_emb(embeddings, emb_dim=config.emb_dim)
 
-    test_dir = os.path.join(config.data_path, test_data_file)
+    test_dir = os.path.join(config.dataset_path, test_data_file)
     test_loader = read_corpus(test_dir, max_length=config.max_len, intent2idx=intent2idx, slot2idx=slot2idx,
                               vocab=vocab, is_train=False)
     model = torch.load(config.model_save_dir + config.model_path, map_location=device)
@@ -177,7 +177,7 @@ def run_test(test_data_file):
     pred_slots = []
     true_slots = []
 
-    for i, batch in enumerate(tqdm(test_loader, desc="Evaluating")):
+    for i, batch in enumerate(tqdm(test_loader, position=0, leave=True)):
         inputs, char_lists, slot_labels, intent_labels, masks, = batch
         if use_cuda:
             inputs, char_lists, masks, intent_labels, slot_labels = inputs.cuda(), char_lists.cuda(), masks.cuda(), intent_labels.cuda(), slot_labels.cuda()
