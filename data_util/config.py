@@ -2,7 +2,7 @@ import os
 
 root_dir = os.path.expanduser("~")
 # path
-dataset_path = "../../../Datasets/MultiWOZ_2.2/"
+dataset_path = "../../../Datasets/MultiWOZ_2.2_v2/"
 data_path = "./data/"
 vocab_path = data_path + "vocab.txt"
 model_save_dir = "./ckpt/"
@@ -10,7 +10,7 @@ model_path = "multiwoz_model.bin"
 emb_file = "./data/glove.6B.300d.txt"
 
 # model hyperparameters
-hidden_dim = 128
+hidden_dim = 192
 emb_dim = 300
 emb_dorpout = 0.8
 lstm_dropout = 0.5
